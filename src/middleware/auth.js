@@ -9,16 +9,13 @@ export const auth = async (req, res, next) => {
     const secret = process.env.JWT_SECRET;
     const decoded = jwt.verify(token, secret);
 
-    const user = await User.findOne({ _id: decoded._id, "tokens.token": token });
+    const user = await User.findById(decoded._id).select("-password");
     if (!user) return res.status(401).json({ error: "Unauthorized" });
 
     req.user = user;
-    req.token = token;
     next();
   } catch (err) {
     console.error("auth error:", err.message);
     return res.status(401).json({ error: "Unauthorized" });
   }
 };
-
-export default auth;
